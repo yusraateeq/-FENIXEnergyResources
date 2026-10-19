@@ -1,4 +1,6 @@
 import { Link } from 'react-router-dom'
+import { useRef, useEffect } from 'react'
+import gsap from 'gsap'
 import Reveal from '../components/Reveal.jsx'
 import Counter from '../components/Counter.jsx'
 import HeroParticles from '../components/HeroParticles.jsx'
@@ -96,28 +98,101 @@ const COMMITMENT_PANELS = [
 ]
 
 export default function Home() {
+  const heroSectionRef = useRef(null)
+  const heroBgRef = useRef(null)
+  const heroKickerRef = useRef(null)
+  const heroLineRefs = useRef([])
+  const heroLeadRef = useRef(null)
+  const heroActionsRef = useRef(null)
+  const heroScrollRef = useRef(null)
+
+  useEffect(() => {
+    const video = heroSectionRef.current?.querySelector('video')
+    if (video) {
+      video.play().catch(() => {})
+    }
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        heroBgRef.current,
+        { scale: 1.14, opacity: 0.3 },
+        { scale: 1, opacity: 1, duration: 1.5, ease: 'power2.out' }
+      )
+
+      gsap.fromTo(
+        heroKickerRef.current,
+        { opacity: 0, y: 18 },
+        { opacity: 1, y: 0, duration: 0.75, ease: 'power3.out', delay: 0.2 }
+      )
+
+      gsap.fromTo(
+        heroLineRefs.current,
+        { opacity: 0, y: 120 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.9,
+          ease: 'power3.out',
+          stagger: 0.12,
+          delay: 0.35
+        }
+      )
+
+      gsap.fromTo(
+        [heroLeadRef.current, heroActionsRef.current],
+        { opacity: 0, y: 26 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: 'power3.out',
+          stagger: 0.12,
+          delay: 0.7
+        }
+      )
+
+      gsap.fromTo(
+        heroScrollRef.current,
+        { opacity: 0, y: 12 },
+        { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out', delay: 1.1 }
+      )
+    }, heroSectionRef)
+
+    return () => ctx.revert()
+  }, [])
+
   return (
     <>
       {/* HERO */}
-      <section className="hero">
-        <div className="hero-bg" style={{ backgroundImage: "url('/images/hero-mine.jpg')" }} aria-hidden="true" />
+      <section className="hero" ref={heroSectionRef}>
+        <div className="hero-bg" ref={heroBgRef}>
+          <video
+            muted
+            playsInline
+            autoPlay
+            loop
+            className="hero-video"
+          >
+            <source src="/video.mp4" type="video/mp4" />
+          </video>
+        </div>
         <div className="hero-overlay" aria-hidden="true" />
         <HeroParticles />
         <div className="hero-content">
-          <span className="hero-kicker">
+          <span className="hero-kicker" ref={heroKickerRef}>
             <span className="dot" />
             Est. 2021 · Pakistan &amp; Global Sourcing
           </span>
           <h1>
-            <span className="line"><span>Powering Industries.</span></span>
-            <span className="line"><span>Connecting</span></span>
-            <span className="line"><span><em>Resources.</em></span></span>
+            <span className="line"><span ref={(el) => (heroLineRefs.current[0] = el)}>Powering Industries.</span></span>
+            <span className="line"><span ref={(el) => (heroLineRefs.current[1] = el)}>Connecting</span></span>
+            <span className="line"><span ref={(el) => (heroLineRefs.current[2] = el)}><em>Resources.</em></span></span>
           </h1>
-          <p className="lead">
+          <p className="lead" ref={heroLeadRef}>
             Premium coal supply, procurement and logistics solutions — engineered around your
             quality, quantity and operational requirements. Delivering excellence from mine to facility.
           </p>
-          <div className="hero-actions">
+          <div className="hero-actions" ref={heroActionsRef}>
             <Link to="/services" className="btn btn-primary">
               Explore Our Services
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
@@ -125,7 +200,7 @@ export default function Home() {
             <Link to="/contact" className="btn btn-ghost">Request a Quote</Link>
           </div>
         </div>
-        <div className="hero-scroll" aria-hidden="true">
+        <div className="hero-scroll" aria-hidden="true" ref={heroScrollRef}>
           <span className="mouse"><span className="wheel" /></span>
           Scroll
         </div>
